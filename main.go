@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"netcat/netcat"
 )
 
@@ -26,6 +27,6 @@ func main() {
 			fmt.Printf("Failed to accept connection: %v\n", err)
 			continue
 		}
-		netcat.HandleConnection(conn)
+		go netcat.HandleConnection(conn)
 	}
 }
