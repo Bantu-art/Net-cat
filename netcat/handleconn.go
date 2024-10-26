@@ -37,14 +37,6 @@ var (
 )
 
 // Broadcast sends a message to all connected clients
-func Broadcast(message string) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	for client := range clients {
-		client.Conn.Write([]byte(message + "\n"))
-	}
-}
 
 // HandleConnection manages a single client connection
 func HandleConnection(conn net.Conn) {
@@ -67,11 +59,11 @@ func HandleConnection(conn net.Conn) {
 		mutex.Lock()
 		delete(clients, client)
 		mutex.Unlock()
-		Broadcast(fmt.Sprintf("%s has left our chat...", client.Name))
+		Broadcast("", fmt.Sprintf("%s has left our chat...", client.Name))
 	}()
 
 	// Announce new client
-	Broadcast(fmt.Sprintf("%s has joined our chat...", client.Name))
+	Broadcast("", fmt.Sprintf("%s has joined our chat...", client.Name))
 
 	// Read and broadcast messages
 	reader := bufio.NewReader(conn)
@@ -80,7 +72,6 @@ func HandleConnection(conn net.Conn) {
 		if err != nil {
 			return
 		}
-		fullMessage := fmt.Sprintf("[%s]: %s", client.Name, message)
-		Broadcast(fullMessage)
+		Broadcast(client.Name, message)
 	}
 }
