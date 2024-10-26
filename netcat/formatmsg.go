@@ -8,7 +8,7 @@ import (
 func FormatMessage(name, message string) string {
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	if message == "" {
+	if name == "" {
 		return fmt.Sprintf("[%s]%s", timestamp, message)
 	}
 
