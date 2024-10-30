@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 )
 
@@ -91,8 +92,41 @@ func HandleConnection(conn net.Conn, history *History) {
 		if err != nil {
 			return
 		}
-		message = message[:len(message)-1]
-		conn.Write([]byte("\033[A\033[2K"))
-		Broadcast(client, message, history)
+		message = trimSpace(message)
+		if len(message) == 0 || message == "\n" || message == "" || message == " " {
+			conn.Write([]byte("Message cannot be empty\n"))
+		} else {
+			// message = message[:len(message)-1]
+			conn.Write([]byte("\033[A\033[2K"))
+			Broadcast(client, message, history)
+		}
 	}
+}
+
+/*
+* First replace all unallowed characters
+* trim the external spaces to leave a lean message
+*/
+func trimSpace(s string) string {
+	s = replaceSpecialcharacters(s)
+	s = strings.TrimSpace(s)
+	return s
+}
+
+/*
+* Replace all special characters with characters that can be recognized and processed by golang
+* Make them fit inside a rune
+ */
+ func replaceSpecialcharacters(s string) string {
+	replacer := strings.NewReplacer(
+		"\\v", " ",
+		"\\n", " ",
+		"\\t", " ",
+		"\\b", " ",
+		"\\r", " ",
+		"\\a", " ",
+		"\\f", " ",
+		"\\x20", " ",
+	)
+	return replacer.Replace(s)
 }
