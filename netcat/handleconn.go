@@ -34,7 +34,6 @@ type Client struct {
 var (
 	clients = make(map[*Client]bool) // Using a map as a set to track clients
 	mutex   = &sync.Mutex{}          // To safely modify the clients map
-	// capacity = 10 // a single room capacity // CAPACITY
 )
 
 // Broadcast sends a message to all connected clients
@@ -42,23 +41,13 @@ var (
 // HandleConnection manages a single client connection
 func HandleConnection(conn net.Conn, history *History) {
 	defer conn.Close()
-
-	// CAPACITY
-	// check if client can be added to a room
-	// that is, if the room is still below capacity
-	//  if len(clients) > capacity {
-    //     conn.Write([]byte("The room is currently full\n"))
-	// 	conn.Close()
-    //     return
-    // }
-
+	
 	// initialize the clients details, e.g name, will create a "Client" type
 	client, err := initializeClientDetails(conn)
 	if err != nil {
 		fmt.Printf("Failed to register client: %v\n", err)
 		return
 	}
-	
 
 	// send all previous mesages to the new client
 	allMessages := history.List()
@@ -78,6 +67,7 @@ func HandleConnection(conn net.Conn, history *History) {
 		mutex.Lock()
 		delete(clients, client)
 		mutex.Unlock()
+		fmt.Println(client.Name + " has left our chat")
 		Broadcast(client, fmt.Sprintf("%s has left our chat...", client.Name), history)
 	}()
 
@@ -88,7 +78,6 @@ func HandleConnection(conn net.Conn, history *History) {
 	// displayed message on other client interfaces
 	othersMsg := fmt.Sprintf("%s has joined our chat...", client.Name)
 	formattedOtherMsg := FormatMessage(client.Name, othersMsg)
-	history.Save(formattedOtherMsg + "\n")
 
 	mutex.Lock()
 	for otherClient := range clients {

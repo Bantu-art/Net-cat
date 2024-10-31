@@ -8,7 +8,6 @@ func Broadcast(sender *Client, message string, history *History) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	// fmt.Fprint(sender.Conn, "\033[2K\r")
 	fmt.Fprintln(sender.Conn, formattedMsg)
 
 	for client := range clients {
