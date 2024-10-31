@@ -7,7 +7,7 @@ import (
     "strings"
 )
 
-func RegisterClient(conn net.Conn) (*Client, error) {
+func initializeClientDetails(conn net.Conn) (*Client, error) {
     reader := bufio.NewReader(conn)
 
     if _, err := conn.Write([]byte(WelcomeMessage)); err != nil {

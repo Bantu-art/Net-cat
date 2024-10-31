@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"strings"
 	"sync"
 )
 
@@ -35,6 +34,7 @@ type Client struct {
 var (
 	clients = make(map[*Client]bool) // Using a map as a set to track clients
 	mutex   = &sync.Mutex{}          // To safely modify the clients map
+	// capacity = 10 // a single room capacity // CAPACITY
 )
 
 // Broadcast sends a message to all connected clients
@@ -43,19 +43,32 @@ var (
 func HandleConnection(conn net.Conn, history *History) {
 	defer conn.Close()
 
-	client, err := RegisterClient(conn)
+	// CAPACITY
+	// check if client can be added to a room
+	// that is, if the room is still below capacity
+	//  if len(clients) > capacity {
+    //     conn.Write([]byte("The room is currently full\n"))
+	// 	conn.Close()
+    //     return
+    // }
+
+	// initialize the clients details, e.g name, will create a "Client" type
+	client, err := initializeClientDetails(conn)
 	if err != nil {
 		fmt.Printf("Failed to register client: %v\n", err)
 		return
 	}
+	
 
+	// send all previous mesages to the new client
 	allMessages := history.List()
 	fmt.Println(allMessages)
 	client.Conn.Write([]byte(allMessages))
 
 	fmt.Printf("New client: (%s) registered\n", client.Name)
 
-	// Add to clients list
+	// Add the client to the clients list
+	// this is the list we will use to broadcast messages
 	mutex.Lock()
 	clients[client] = true
 	mutex.Unlock()
@@ -101,32 +114,4 @@ func HandleConnection(conn net.Conn, history *History) {
 			Broadcast(client, message, history)
 		}
 	}
-}
-
-/*
-* First replace all unallowed characters
-* trim the external spaces to leave a lean message
-*/
-func trimSpace(s string) string {
-	s = replaceSpecialcharacters(s)
-	s = strings.TrimSpace(s)
-	return s
-}
-
-/*
-* Replace all special characters with characters that can be recognized and processed by golang
-* Make them fit inside a rune
- */
- func replaceSpecialcharacters(s string) string {
-	replacer := strings.NewReplacer(
-		"\\v", " ",
-		"\\n", " ",
-		"\\t", " ",
-		"\\b", " ",
-		"\\r", " ",
-		"\\a", " ",
-		"\\f", " ",
-		"\\x20", " ",
-	)
-	return replacer.Replace(s)
 }
