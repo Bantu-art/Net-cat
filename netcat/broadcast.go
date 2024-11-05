@@ -14,6 +14,8 @@ func Broadcast(sender *Client, message string, history *History) {
 		if client == sender {
 			continue
 		}
-		client.Conn.Write([]byte(formattedMsg + "\n"))
+		if(client != nil) {
+			client.Conn.Write([]byte(formattedMsg + "\n"))
+		}
 	}
 }
