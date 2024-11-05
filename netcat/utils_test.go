@@ -1,7 +1,6 @@
 package netcat
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -30,7 +29,6 @@ func TestReplaceSpecialCharacters(t *testing.T) {
 	for _, tItem := range tTests {
 		t.Run(tItem.name, func(t *testing.T) {
 			result := replaceSpecialcharacters(tItem.expected)
-			fmt.Printf("Result: %q\nExpected: %q\n", result, tItem.input)
 			if result != tItem.expected {
 				t.Errorf("replaceSpecialcharacters() args = %v, want %v", result, tItem.expected)
 			}
@@ -63,7 +61,6 @@ func TestTrimSpace(t *testing.T) {
 	for _, tItem := range tTests {
 		t.Run(tItem.name, func(t *testing.T) {
 			result := trimSpace(tItem.input)
-			fmt.Printf("Result: %q\nExpected: %q\n", result, tItem.expected)
 			if result != tItem.expected {
 				t.Errorf("replaceSpecialcharacters() args = %v, want %v", result, tItem.expected)
 			}
