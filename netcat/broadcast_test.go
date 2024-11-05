@@ -37,11 +37,10 @@ func TestBroadcast(t *testing.T) {
 	clients[client3] = true
 
 	history := NewHistory()
-	history.Save("hello\n")
-	history.Save("there\n")
-	history.Save("world\n")
 
 	Broadcast(client1, "Hello", history)
+	Broadcast(client1, "world", history)
+	Broadcast(client1, "kenya", history)
 
 	for client := range clients {
 		if client.Conn == nil {
