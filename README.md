@@ -9,7 +9,7 @@ A TCP-based chat application implemented in Go that allows multiple clients to c
 
 ## Description
 
-This project is a recreation of the NetCat utility with a focus on implementing a server-client architecture for group chat functionality. It's built using Go and implements TCP connections to facilitate communication between multiple clients through a central server.
+This project is a recreation of the NetCat utility with a focus on implementing a server architecture for group chat functionality. It's built using Go and implements TCP connections to facilitate communication between multiple clients through a central server.
 
 ### Features
 
@@ -21,7 +21,7 @@ This project is a recreation of the NetCat utility with a focus on implementing 
 - Message history for new connections
 - Timestamp and username identification for all messages
 - Default port 8989 if none specified
-- ASCII art welcome message
+- Linux logo welcome message
 
 ## Usage
 
@@ -52,7 +52,7 @@ nc localhost <port>
 ### 1. Clone the repository
 
 ```bash
-git clone https://learn.zone01kisumu.ke/git/anoduor/net-cat
+git clone https://learn.zone01kisumu.ke/git/anoduor/net-cat.git
 ```
 
 ### 2. Navigate to the Project directory
@@ -63,7 +63,7 @@ cd net-cat
 ### 3. Build the project
 
 ```bash
-go build
+go build -o TCPChat
 ```
 ### 4. Run the server
 
@@ -77,20 +77,6 @@ If incorrect usage: [USAGE]: ./TCPChat $port
 
 Connection limit reached: Server notifies when maximum connections (10) is reached
 
-## Project Structure
-
-```bash
-net-cat/
-├── main.go
-├── server/
-│   └── server.go
-├── client/
-│   └── client.go
-├── utils/
-│   └── utils.go
-└── README.md
-```
-
 ## Requirements
 
 Go 1.6 or higher
@@ -99,7 +85,7 @@ Network connectivity for client-server communication
 
 ## Testing
 
-The project includes test files for unit testing both server connection and client functionality. Run tests using:
+The project includes test files for unit testing. While inside the root folder, run the tests using:
 
 ```bash
 go test ./...
