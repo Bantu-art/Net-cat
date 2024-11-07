@@ -49,7 +49,7 @@ func HandleConnection(conn net.Conn, history *History, clients map[*Client]bool,
 	// fmt.Println(allMessages)
 	client.Conn.Write([]byte(allMessages))
 
-	fmt.Printf("New client: (%s) registered\n", client.Name)
+	fmt.Printf("\t%s, has just joined the server...\n", client.Name)
 
 	// Add the client to the clients list
 	// this is the list we will use to broadcast messages
@@ -62,8 +62,7 @@ func HandleConnection(conn net.Conn, history *History, clients map[*Client]bool,
 		mutex.Lock()
 		delete(clients, client)
 		mutex.Unlock()
-		fmt.Println("LenOfMAP: ", len(clients))
-		fmt.Println(client.Name + " has left our chatJJHJGFGHJ")
+		fmt.Printf("  %s has left the chat...\n", client.Name) // log it on server
 		Broadcast(client, fmt.Sprintf("%s has left our chat...", client.Name), history, clients, mutex)
 	}()
 
