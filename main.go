@@ -7,11 +7,10 @@ import (
 	"netcat/netcat"
 )
 
-var MAXCLIENTS = 2
-
 var (
-	clients = make(map[*netcat.Client]bool) // Using a map as a set to track clients
-	mutex   = &sync.Mutex{}                 // To safely modify the clients map
+	clients = make(map[*netcat.Client]bool)       // Using a map as a set to track clients
+	mutex   = &sync.Mutex{}                       // To safely modify the clients map
+	MAXCLIENTS = 10                               // the maximum number of allowed clients on a single server session
 )
 
 func main() {
