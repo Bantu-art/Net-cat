@@ -2,10 +2,6 @@
 
 A TCP-based chat application implemented in Go that allows multiple clients to connect to a server and communicate in a group chat environment.
 
-## Authors
-- Anthony Oduor
-- Joel Adero
-- Brian Bantu
 
 ## Description
 
@@ -34,6 +30,7 @@ go run .
 # Custom port
 go run . 2525
 ```
+
 ### Connecting as a Client
 
 ```bash
@@ -41,6 +38,7 @@ nc localhost <port>
 ```
 
 ## Message Format
+
 ### Messages in the chat are formatted as:
 
 ```bash
@@ -60,11 +58,13 @@ git clone https://learn.zone01kisumu.ke/git/anoduor/net-cat.git
 ```bash
 cd net-cat
 ```
+
 ### 3. Build the project
 
 ```bash
 go build -o TCPChat
 ```
+
 ### 4. Run the server
 
 ```bash
@@ -79,9 +79,9 @@ Connection limit reached: Server notifies when maximum connections (10) is reach
 
 ## Requirements
 
-Go 1.6 or higher
+- Go 1.22.2 or higher
 
-Network connectivity for client-server communication
+- Network connectivity for client-server communication
 
 ## Testing
 
@@ -99,4 +99,6 @@ This project was developed and contributions made by:
 - [Antony Oduor](https://github.com/oduortoni)
 - [Joel Adero](https://github.com/Murzuqisah)
 
+## License
 
+This project is licensed under [MIT](https://learn.zone01kisumu.ke/git/anoduor/net-cat/src/branch/master/LICENSE)
