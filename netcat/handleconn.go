@@ -39,7 +39,7 @@ var (
 // Broadcast sends a message to all connected clients
 
 // HandleConnection manages a single client connection
-func HandleConnection(conn net.Conn) {
+func HandleConnection(conn net.Conn, history *History) {
 	defer conn.Close()
 
 	client, err := RegisterClient(conn)
@@ -47,6 +47,10 @@ func HandleConnection(conn net.Conn) {
 		fmt.Printf("Failed to register client: %v\n", err)
 		return
 	}
+
+	allMessages := history.List()
+	fmt.Println("All: ", allMessages)
+	client.Conn.Write([]byte(allMessages))
 
 	fmt.Printf("New client: (%s) registered\n", client.Name)
 	// Add to clients list
@@ -59,11 +63,11 @@ func HandleConnection(conn net.Conn) {
 		mutex.Lock()
 		delete(clients, client)
 		mutex.Unlock()
-		Broadcast("", fmt.Sprintf("%s has left our chat...", client.Name))
+		Broadcast("", fmt.Sprintf("%s has left our chat...", client.Name), history)
 	}()
 
 	// Announce new client
-	Broadcast("", fmt.Sprintf("%s has joined our chat...", client.Name))
+	Broadcast("", fmt.Sprintf("%s has joined our chat...", client.Name), history)
 
 	// Read and broadcast messages
 	reader := bufio.NewReader(conn)
@@ -72,6 +76,7 @@ func HandleConnection(conn net.Conn) {
 		if err != nil {
 			return
 		}
-		Broadcast(client.Name, message)
+		history.Save(message)
+		Broadcast(client.Name, message, history)
 	}
 }

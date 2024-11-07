@@ -21,12 +21,13 @@ func main() {
 
 	fmt.Printf("Listening on the port :%s\n", port)
 
+	history := netcat.NewHistory()
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Printf("Failed to accept connection: %v\n", err)
 			continue
 		}
-		go netcat.HandleConnection(conn)
+		go netcat.HandleConnection(conn, history)
 	}
 }
