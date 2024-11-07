@@ -31,29 +31,28 @@ type Client struct {
 	Name string
 }
 
-var (
-	clients = make(map[*Client]bool) // Using a map as a set to track clients
-	mutex   = &sync.Mutex{}          // To safely modify the clients map
-)
-
 // Broadcast sends a message to all connected clients
 
 // HandleConnection manages a single client connection
-func HandleConnection(conn net.Conn, history *History) {
+func HandleConnection(conn net.Conn, history *History, clients map[*Client]bool, mutex *sync.Mutex) {
 	defer conn.Close()
 
-	client, err := RegisterClient(conn)
+	// initialize the clients details, e.g name, will create a "Client" type
+	client, err := initializeClientDetails(conn)
 	if err != nil {
 		fmt.Printf("Failed to register client: %v\n", err)
 		return
 	}
 
+	// send all previous mesages to the new client
 	allMessages := history.List()
+	// fmt.Println(allMessages)
 	client.Conn.Write([]byte(allMessages))
 
-	fmt.Printf("New client: (%s) registered\n", client.Name)
+	fmt.Printf("\t%s, has just joined the server...\n", client.Name)
 
-	// Add to clients list
+	// Add the client to the clients list
+	// this is the list we will use to broadcast messages
 	mutex.Lock()
 	clients[client] = true
 	mutex.Unlock()
@@ -63,12 +62,25 @@ func HandleConnection(conn net.Conn, history *History) {
 		mutex.Lock()
 		delete(clients, client)
 		mutex.Unlock()
-		Broadcast(client, fmt.Sprintf("%s has left our chat...", client.Name), history)
+		fmt.Printf("  %s has left the chat...\n", client.Name) // log it on server
+		Broadcast(client, fmt.Sprintf("%s has left our chat...", client.Name), history, clients, mutex)
 	}()
 
 	// Announce new client
-	// if client ==
-	Broadcast(client, fmt.Sprintf("%s has joined our chat...", client.Name), history)
+	joinerMsg := FormatMessage(client.Name, "You have joined our chat...")
+	client.Conn.Write([]byte(joinerMsg + "\n"))
+
+	// displayed message on other client interfaces
+	othersMsg := fmt.Sprintf("%s has joined our chat...", client.Name)
+	formattedOtherMsg := FormatMessage(client.Name, othersMsg)
+
+	mutex.Lock()
+	for otherClient := range clients {
+		if otherClient != client {
+			otherClient.Conn.Write([]byte(formattedOtherMsg + "\n"))
+		}
+	}
+	mutex.Unlock()
 
 	// Read and broadcast messages
 	reader := bufio.NewReader(conn)
@@ -77,8 +89,13 @@ func HandleConnection(conn net.Conn, history *History) {
 		if err != nil {
 			return
 		}
-		message = message[:len(message)-1]
-		conn.Write([]byte("\033[A\033[2K"))
-		Broadcast(client, message, history)
+		message = trimSpace(message)
+		if len(message) == 0 || message == "\n" || message == "" || message == " " {
+			conn.Write([]byte("Message cannot be empty\n"))
+		} else {
+			// message = message[:len(message)-1]
+			conn.Write([]byte("\033[A\033[2K"))
+			Broadcast(client, message, history, clients, mutex)
+		}
 	}
 }
