@@ -2,6 +2,11 @@ package netcat
 
 import "strings"
 
+type Details struct {
+	Max int
+	Count int
+}
+
 /*
 * First replace all unallowed characters
 * trim the external spaces to leave a lean message

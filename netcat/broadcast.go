@@ -1,8 +1,11 @@
 package netcat
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
-func Broadcast(sender *Client, message string, history *History) {
+func Broadcast(sender *Client, message string, history *History, clients map[*Client]bool, mutex *sync.Mutex) {
 	formattedMsg := FormatMessage(sender.Name, message)
 	history.Save(formattedMsg + "\n")
 	mutex.Lock()

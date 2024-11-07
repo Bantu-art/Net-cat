@@ -31,17 +31,12 @@ type Client struct {
 	Name string
 }
 
-var (
-	clients = make(map[*Client]bool) // Using a map as a set to track clients
-	mutex   = &sync.Mutex{}          // To safely modify the clients map
-)
-
 // Broadcast sends a message to all connected clients
 
 // HandleConnection manages a single client connection
-func HandleConnection(conn net.Conn, history *History) {
+func HandleConnection(conn net.Conn, history *History, clients map[*Client]bool, mutex *sync.Mutex) {
 	defer conn.Close()
-	
+
 	// initialize the clients details, e.g name, will create a "Client" type
 	client, err := initializeClientDetails(conn)
 	if err != nil {
@@ -51,7 +46,7 @@ func HandleConnection(conn net.Conn, history *History) {
 
 	// send all previous mesages to the new client
 	allMessages := history.List()
-	fmt.Println(allMessages)
+	// fmt.Println(allMessages)
 	client.Conn.Write([]byte(allMessages))
 
 	fmt.Printf("New client: (%s) registered\n", client.Name)
@@ -67,8 +62,9 @@ func HandleConnection(conn net.Conn, history *History) {
 		mutex.Lock()
 		delete(clients, client)
 		mutex.Unlock()
-		fmt.Println(client.Name + " has left our chat")
-		Broadcast(client, fmt.Sprintf("%s has left our chat...", client.Name), history)
+		fmt.Println("LenOfMAP: ", len(clients))
+		fmt.Println(client.Name + " has left our chatJJHJGFGHJ")
+		Broadcast(client, fmt.Sprintf("%s has left our chat...", client.Name), history, clients, mutex)
 	}()
 
 	// Announce new client
@@ -100,7 +96,7 @@ func HandleConnection(conn net.Conn, history *History) {
 		} else {
 			// message = message[:len(message)-1]
 			conn.Write([]byte("\033[A\033[2K"))
-			Broadcast(client, message, history)
+			Broadcast(client, message, history, clients, mutex)
 		}
 	}
 }

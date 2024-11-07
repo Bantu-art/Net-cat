@@ -2,8 +2,16 @@ package main
 
 import (
 	"fmt"
+	"sync"
 
 	"netcat/netcat"
+)
+
+var MAXCLIENTS = 2
+
+var (
+	clients = make(map[*netcat.Client]bool) // Using a map as a set to track clients
+	mutex   = &sync.Mutex{}                 // To safely modify the clients map
 )
 
 func main() {
@@ -11,6 +19,8 @@ func main() {
 	if port == "" {
 		return
 	}
+
+	fmt.Println("MAPLEN: ", len(clients))
 
 	listener, err := netcat.StartServer(port)
 	if err != nil {
@@ -27,7 +37,15 @@ func main() {
 		if err != nil {
 			fmt.Printf("Failed to accept connection: %v\n", err)
 			continue
+		} else {
+			nClients := len(clients)
+			fmt.Println("Number is ", nClients)
+			if nClients >= MAXCLIENTS {
+				conn.Write([]byte("Not accepting any more connections"))
+				conn.Close()
+			} else {
+				go netcat.HandleConnection(conn, history, clients, mutex)
+			}
 		}
-		go netcat.HandleConnection(conn, history)
 	}
 }
