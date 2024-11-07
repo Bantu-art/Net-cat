@@ -49,10 +49,10 @@ func HandleConnection(conn net.Conn, history *History) {
 	}
 
 	allMessages := history.List()
-	fmt.Println("All: ", allMessages)
 	client.Conn.Write([]byte(allMessages))
 
 	fmt.Printf("New client: (%s) registered\n", client.Name)
+
 	// Add to clients list
 	mutex.Lock()
 	clients[client] = true
@@ -63,11 +63,12 @@ func HandleConnection(conn net.Conn, history *History) {
 		mutex.Lock()
 		delete(clients, client)
 		mutex.Unlock()
-		Broadcast("", fmt.Sprintf("%s has left our chat...", client.Name), history)
+		Broadcast(client, fmt.Sprintf("%s has left our chat...", client.Name), history)
 	}()
 
 	// Announce new client
-	Broadcast("", fmt.Sprintf("%s has joined our chat...", client.Name), history)
+	// if client ==
+	Broadcast(client, fmt.Sprintf("%s has joined our chat...", client.Name), history)
 
 	// Read and broadcast messages
 	reader := bufio.NewReader(conn)
@@ -76,7 +77,8 @@ func HandleConnection(conn net.Conn, history *History) {
 		if err != nil {
 			return
 		}
-		history.Save(message)
-		Broadcast(client.Name, message, history)
+		message = message[:len(message)-1]
+		conn.Write([]byte("\033[A\033[2K"))
+		Broadcast(client, message, history)
 	}
 }
