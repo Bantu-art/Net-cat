@@ -1,14 +1,14 @@
 package netcat
 
 import (
+	"sync"
 	"testing"
 )
 
 func TestBroadcast(t *testing.T) {
-	savedClients := clients
-	defer func() {
-		clients = savedClients
-	}()
+	clients := make(map[*Client]bool)
+	history := NewHistory()
+	mutex := &sync.Mutex{}
 
 	conn1 := &MockTcpConn{
 		OutputBuffer: make([]byte, 30),
@@ -31,16 +31,13 @@ func TestBroadcast(t *testing.T) {
 		Conn: conn3,
 		Name: "c_tre",
 	}
-	clients = make(map[*Client]bool)
 	clients[client1] = true
 	clients[client2] = true
 	clients[client3] = true
 
-	history := NewHistory()
-
-	Broadcast(client1, "Hello", history)
-	Broadcast(client1, "world", history)
-	Broadcast(client1, "kenya", history)
+	Broadcast(client1, "Hello", history, clients, mutex)
+	Broadcast(client1, "world", history, clients, mutex)
+	Broadcast(client1, "kenya", history, clients, mutex)
 
 	for client := range clients {
 		if client.Conn == nil {
